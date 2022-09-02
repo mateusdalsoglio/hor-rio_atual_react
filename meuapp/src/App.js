@@ -1,51 +1,47 @@
-import React, {Component} from 'react';
+import React, {useState, useEffect, useMemo, useCallback} from 'react';
 
+function App(){
 
-class App extends Component {
+    const [tarefas, setTarefas] = useState([]);
+    const [input, setInput] = useState('');
 
-  constructor(props){
-      super(props);
-      this.state = {
-          nome: '',
-          email:'',
-          senha:'',
-          error:''
-      };
+    useEffect(()=> {
+        const tarefasStorage = localStorage.getItem('tarefas');
 
-      this.cadastrar = this.cadastrar.bind(this);
+        if(tarefasStorage){
+            setTarefas(JSON.parse(tarefasStorage))
+        }
+    }, []);
+    
+    useEffect(() =>{
+        localStorage.setItem('tarefas', JSON.stringify(tarefas));
+    }, [tarefas])
 
-  }
+    const handleAdd = useCallback(() =>{
+        setTarefas([...tarefas, input])
+        setInput('');
+    }, [input, tarefas]);
 
-  cadastrar(event){
-      const{nome, email, senha} = this.state;
+    const totalTarefas = useMemo(()=> tarefas.length, [tarefas]);
+ 
 
-      if(nome !== '' && email !== '' && senha !== ''){
-        alert(`Nome: ${nome} \nEmail: ${email} \n senha: ${senha}`)
-      }else{
-        this.setState({error: 'Ops! Parece que esta faltando algo!'});
-      }
-
-      event.preventDefault();
-  }
-
-
-  render(){
-      return(
+      return (
           <div>
-              <h1>Novo usuario</h1>
-              {this.state.error && <p>{this.state.error}</p>}
-              <form onSubmit={this.cadastrar}>
-                  <label>Nome:</label>
-                  <input type="text" value={this.state.nome} onChange={(e) => this.setState({nome: e.target.value})}/><br/>
-                  <label>E-mail:</label>
-                  <input type="email" value={this.state.email} onChange={(e) => this.setState({email: e.target.value})}  /><br/>
-                  <label>Senha:</label>
-                  <input type="password" value={this.state.senha} onChange={(e) => this.setState({senha: e.target.value})}/><br/>
-                  <button type="submit">Cadastro</button>
-              </form>
+
+
+            <ul>
+                {tarefas.map(tarefa => (
+                    <li hey={tarefa}>{tarefa}</li>
+                ))}
+            </ul>
+            <br/>
+            <strong>Você tem {totalTarefas} tarefas!</strong><br/>
+            <input type="text" value={input} onChange={e => setInput(e.target.value)}/>
+            <button type="button" onClick={handleAdd}>Adicionar</button>
+
           </div>
       );
-  }
+
 }
 
 export default App;
